@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "generate": "../../node_modules/.bin/ts-node --project ./tsconfig.app.json ./src/electric-drizzle-generator.ts"
+  }
+}
