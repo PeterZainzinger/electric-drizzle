@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1703665948494,
+      "tag": "0000_handy_network",
+      "breakpoints": false
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1703665952810,
+      "tag": "0001_neat_warbound",
+      "breakpoints": false
+    }
+  ]
+}

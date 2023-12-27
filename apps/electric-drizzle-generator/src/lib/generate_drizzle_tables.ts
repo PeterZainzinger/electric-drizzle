@@ -15,8 +15,14 @@ export function generateDrizzleTables(info: AllTableInfos) {
 
   ${infos.map((e) => e.text).join('\n\n')}
 
-  export const allTables = [${info.table.map((e) => tableName(e)).join(', ')}];
-  `;
+  export const allTables = {${info.table.map((e) => tableName(e)).join(', ')}};
+  export const allTablesWithInfo = {${info.table
+    .map((e) => {
+      const table = tableName(e);
+      return table + ': ' + JSON.stringify(e, null, 2);
+    })
+    .join(', ')}
+  }`;
 }
 
 function generateTable(table: TableInfo) {

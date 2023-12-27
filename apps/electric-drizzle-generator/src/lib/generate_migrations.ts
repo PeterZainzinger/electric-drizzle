@@ -3,16 +3,19 @@ import { AllTableInfos, TableInfo } from './fetch-table-infos';
 import { generateTableTriggers, Table } from './copied/triggers';
 import { postgres2sqlite } from './type_mappings';
 
+// TODO(peter): not so sure this should work like this, check this
 export function generateAllMigrations(info: AllTableInfos) {
-  const triggers = info.table
-    .map(generateTriggersForTable)
-    .flat()
-    .map((stmt) => stmt.sql);
+  return info.migrationStatements.map((migrationSet) => {
+    const triggers = info.table
+      .map(generateTriggersForTable)
+      .flat()
+      .map((stmt) => stmt.sql);
 
-  return {
-    statements: [...info.migrationStatements, ...triggers] as string[],
-    version: info.migrationVersion,
-  };
+    return {
+      statements: [...migrationSet.map((e) => e.trim()), ...triggers],
+      version: info.migrationVersion,
+    };
+  });
 }
 
 function generateTriggersForTable(tbl: TableInfo): Statement[] {

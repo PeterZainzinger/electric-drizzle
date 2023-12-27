@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "migrate": "../../node_modules/.bin/ts-node migrate.ts",
+    "generate": "../../node_modules/.bin/drizzle-kit generate:pg",
+    "generate_empty": "../../node_modules/.bin/drizzle-kit generate:pg --custom",
+    "generate_up": "../../node_modules/.bin/drizzle-kit up:pg"
+  }
+}

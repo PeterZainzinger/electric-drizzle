@@ -26,7 +26,7 @@ export async function fetchTableInfos(
     };
     migration_ddl: string[];
   }>('SELECT schema.schema, migration_ddl from electric.schema order by id; ');
-  const migrationStatements = schemaRows.flatMap((e) => e.migration_ddl);
+  const migrationStatements = schemaRows.map((e) => e.migration_ddl);
   const lastSchema = schemaRows[schemaRows.length - 1];
   const tablesElectrified = lastSchema.schema.tables.filter((e) => {
     const electrified = rows.find(

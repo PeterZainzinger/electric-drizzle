@@ -5,4 +5,45 @@ export const tableComments = sqliteTable('comments', {
   text: text('text'),
 });
 
-export const allTables = [tableComments];
+export const allTables = { tableComments };
+export const allTablesWithInfo = {
+  tableComments: {
+    oid: 24597,
+    name: {
+      name: 'comments',
+      schema: 'public',
+    },
+    columns: [
+      {
+        name: 'id',
+        type: {
+          name: 'uuid',
+        },
+        constraints: [
+          {
+            notNull: {},
+          },
+        ],
+      },
+      {
+        name: 'text',
+        type: {
+          name: 'varchar',
+        },
+        constraints: [
+          {
+            notNull: {},
+          },
+        ],
+      },
+    ],
+    constraints: [
+      {
+        primary: {
+          keys: ['id'],
+          name: 'comments_pkey',
+        },
+      },
+    ],
+  },
+};
