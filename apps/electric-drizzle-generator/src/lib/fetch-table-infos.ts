@@ -1,6 +1,8 @@
 import { Client } from 'pg';
 import { GenerateSchemaArgs } from './generator_args';
 
+export type AllTableInfos = Awaited<ReturnType<typeof fetchTableInfos>>;
+
 export async function fetchTableInfos(
   args: Pick<GenerateSchemaArgs, 'proxy_url'>
 ) {
@@ -22,9 +24,9 @@ export async function fetchTableInfos(
     schema: {
       tables: TableInfo[];
     };
-    migration_ddl: string;
+    migration_ddl: string[];
   }>('SELECT schema.schema, migration_ddl from electric.schema order by id; ');
-  const migrationStatements = schemaRows.map((e) => e.migration_ddl);
+  const migrationStatements = schemaRows.flatMap((e) => e.migration_ddl);
   const lastSchema = schemaRows[schemaRows.length - 1];
   const tablesElectrified = lastSchema.schema.tables.filter((e) => {
     const electrified = rows.find(
@@ -33,11 +35,25 @@ export async function fetchTableInfos(
     return electrified !== undefined;
   });
 
+  // query migration version
+
+  const { rows: versionRows } = await client.query<{
+    version: string;
+  }>(
+    'SELECT version from electric.migration_versions order by inserted_at desc limit 1;'
+  );
+  if (versionRows.length === 0) {
+    throw new Error('No migration version found');
+  }
+
+  const migrationVersion = versionRows[0].version;
+
   console.log('Disconnecting from proxy...');
   await client.end();
   console.log('Disconnected from proxy');
 
   return {
+    migrationVersion,
     migrationStatements,
     table: tablesElectrified,
   };
@@ -49,6 +65,7 @@ export type TableInfo = {
     schema: string;
   };
   columns: {
+    name: string;
     type: {
       name: string;
     };
@@ -61,5 +78,5 @@ export type TableInfo = {
       keys: string[];
       name: string;
     };
-  };
+  }[];
 };

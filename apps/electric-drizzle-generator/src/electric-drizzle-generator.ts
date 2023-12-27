@@ -1,9 +1,10 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { Client } from 'pg';
-import { z } from 'zod';
 import { fetchTableInfos } from './lib/fetch-table-infos';
 import { generateSchemaArgs, GenerateSchemaArgs } from './lib/generator_args';
+import { generateAllMigrations } from './lib/generate_migrations';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 if (typeof require !== 'undefined' && require.main === module) {
   yargs(hideBin(process.argv))
@@ -40,4 +41,13 @@ if (typeof require !== 'undefined' && require.main === module) {
 
 async function generate(args: GenerateSchemaArgs) {
   const tableInfos = await fetchTableInfos(args);
+  const migrations = generateAllMigrations(tableInfos);
+
+  const migrationsFile = path.join(args.output, 'migrations.ts');
+  const dir = path.dirname(migrationsFile);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(
+    migrationsFile,
+    `export default ${JSON.stringify(migrations, null, 2)}`
+  );
 }
