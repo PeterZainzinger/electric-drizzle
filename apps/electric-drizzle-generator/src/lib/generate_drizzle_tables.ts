@@ -22,7 +22,10 @@ export function generateDrizzleTables(info: AllTableInfos) {
       return table + ': ' + JSON.stringify(e, null, 2);
     })
     .join(', ')}
-  }`;
+  }
+
+  export const typeMappings = ${JSON.stringify(postgres2sqlite, null, 2)}
+  `;
 }
 
 function generateTable(table: TableInfo) {

@@ -8,7 +8,7 @@ export const tableComments = sqliteTable('comments', {
 export const allTables = { tableComments };
 export const allTablesWithInfo = {
   tableComments: {
-    oid: 24597,
+    oid: 16780,
     name: {
       name: 'comments',
       schema: 'public',
@@ -46,4 +46,11 @@ export const allTablesWithInfo = {
       },
     ],
   },
+};
+
+export const typeMappings = {
+  varchar: 'text',
+  uuid: 'text',
+  int: 'integer',
+  bigint: 'integer',
 };

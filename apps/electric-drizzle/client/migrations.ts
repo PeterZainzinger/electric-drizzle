@@ -12,6 +12,6 @@ export default [
       "DROP TRIGGER IF EXISTS delete_main_comments_into_oplog;",
       "CREATE TRIGGER delete_main_comments_into_oplog\n   AFTER DELETE ON \"main\".\"comments\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.comments')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  VALUES ('main', 'comments', 'DELETE', json_object('id', old.\"id\"), NULL, json_object('id', old.\"id\", 'text', old.\"text\"), NULL);\nEND;"
     ],
-    "version": "20231227083257_125"
+    "version": "20231227190244_705"
   }
 ]

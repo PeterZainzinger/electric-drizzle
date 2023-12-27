@@ -6,7 +6,7 @@ import {
   type TableSchema,
 } from 'electric-sql/client/model';
 import migrations from './migrations';
-import { allTables, allTablesWithInfo } from './tables';
+import { allTables, allTablesWithInfo, typeMappings } from './tables';
 
 function buildTableSchemas() {
   const res: Record<string, any> = {};
@@ -16,7 +16,16 @@ function buildTableSchemas() {
       allTablesWithInfo[tableName as keyof typeof allTablesWithInfo];
     res[tableInfo.name.name] = {
       fields: new Map(
-        tableInfo.columns.map((e) => [e.name, e.type.name])
+        tableInfo.columns.map((e) => {
+          const mappedType =
+            typeMappings[
+              e.type.name.toLowerCase() as keyof typeof typeMappings
+            ];
+          if (!mappedType) {
+            throw new Error(`Unknown type ${e.type.name} `);
+          }
+          return [e.name, 'VARCHAR'];
+        })
       ) as any,
       relations: [],
       modelSchema: createSelectSchema(table).partial(),

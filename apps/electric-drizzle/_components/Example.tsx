@@ -26,7 +26,7 @@ export const Example = () => {
         url: 'ws://localhost:5133',
       };
 
-      const scopedDbName = `basic-v2.db`;
+      const scopedDbName = `basic-v6.db`;
 
       const conn = await ElectricDatabase.init(scopedDbName, '');
       const electric = await electrify(conn, schema, config);

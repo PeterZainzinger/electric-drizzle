@@ -6,7 +6,7 @@ configs:
     file: "./postgres/postgres.conf"
 
 volumes:
-  pg_data_2:
+  pg_data_3:
 
 services:
   postgres:
@@ -29,7 +29,7 @@ services:
       - 5432
 
     volumes:
-      - pg_data_2:/var/lib/postgresql/data
+      - pg_data_3:/var/lib/postgresql/data
 
   electric:
     image: "${ELECTRIC_IMAGE:-electricsql/electric:latest}"
@@ -40,7 +40,7 @@ services:
       LOGICAL_PUBLISHER_HOST: electric
       AUTH_MODE: insecure
     ports:
-      - ${ELECTRIC_PORT:-5133}:5133
-      - ${ELECTRIC_PROXY_PORT:-65432}:65432
+      - 5133:5133
+      - 65432:65432
     depends_on:
       - postgres
