@@ -5,6 +5,7 @@ import { generateSchemaArgs, GenerateSchemaArgs } from './lib/generator_args';
 import { generateAllMigrations } from './lib/generate_migrations';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { generateDrizzleTables } from './lib/generate_drizzle_tables';
 
 if (typeof require !== 'undefined' && require.main === module) {
   yargs(hideBin(process.argv))
@@ -42,12 +43,14 @@ if (typeof require !== 'undefined' && require.main === module) {
 async function generate(args: GenerateSchemaArgs) {
   const tableInfos = await fetchTableInfos(args);
   const migrations = generateAllMigrations(tableInfos);
+  const tables = generateDrizzleTables(tableInfos);
 
   const migrationsFile = path.join(args.output, 'migrations.ts');
-  const dir = path.dirname(migrationsFile);
-  await fs.mkdir(dir, { recursive: true });
+  const tablesFiles = path.join(args.output, 'tables.ts');
+  await fs.mkdir(path.dirname(migrationsFile), { recursive: true });
   await fs.writeFile(
     migrationsFile,
     `export default ${JSON.stringify(migrations, null, 2)}`
   );
+  await fs.writeFile(tablesFiles, tables);
 }

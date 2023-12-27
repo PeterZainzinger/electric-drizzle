@@ -1,6 +1,6 @@
 export const postgres2sqlite = {
-  varchar: 'TEXT',
-  uuid: 'TEXT',
-  int: 'INTEGER',
-  bigint: 'INTEGER',
-};
+  varchar: 'text',
+  uuid: 'text',
+  int: 'integer',
+  bigint: 'integer',
+} satisfies Record<string, any>;

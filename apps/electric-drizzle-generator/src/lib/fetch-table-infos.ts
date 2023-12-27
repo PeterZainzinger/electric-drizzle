@@ -59,20 +59,22 @@ export async function fetchTableInfos(
   };
 }
 
+export type ColumnType = {
+  name: string;
+  type: {
+    name: string;
+  };
+  constraints: {
+    notNull?: {};
+  };
+};
+
 export type TableInfo = {
   name: {
     name: string;
     schema: string;
   };
-  columns: {
-    name: string;
-    type: {
-      name: string;
-    };
-    constraints: {
-      notNull?: {};
-    };
-  }[];
+  columns: ColumnType[];
   constraints: {
     primary?: {
       keys: string[];
