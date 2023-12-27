@@ -24,7 +24,7 @@ function buildTableSchemas() {
           if (!mappedType) {
             throw new Error(`Unknown type ${e.type.name} `);
           }
-          return [e.name, 'VARCHAR'];
+          return [e.name, mappedType.toUpperCase()];
         })
       ) as any,
       relations: [],
