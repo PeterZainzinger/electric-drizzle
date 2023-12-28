@@ -1,10 +1,12 @@
 import { Client } from 'pg';
+import * as http from 'http';
 import { GenerateSchemaArgs } from './generator_args';
+import { fetchMigrationInfo } from './fetch-migration-infos';
 
 export type AllTableInfos = Awaited<ReturnType<typeof fetchTableInfos>>;
 
 export async function fetchTableInfos(
-  args: Pick<GenerateSchemaArgs, 'proxy_url'>
+  args: Pick<GenerateSchemaArgs, 'proxy_url' | 'service'>
 ) {
   const { proxy_url } = args;
 
@@ -24,9 +26,11 @@ export async function fetchTableInfos(
     schema: {
       tables: TableInfo[];
     };
-    migration_ddl: string[];
-  }>('SELECT schema.schema, migration_ddl from electric.schema order by id; ');
-  const migrationStatements = schemaRows.map((e) => e.migration_ddl);
+    version: string;
+  }>(
+    'SELECT schema.schema, migration_ddl,version from electric.schema order by id; '
+  );
+
   const lastSchema = schemaRows[schemaRows.length - 1];
   const tablesElectrified = lastSchema.schema.tables.filter((e) => {
     const electrified = rows.find(
@@ -51,6 +55,8 @@ export async function fetchTableInfos(
   console.log('Disconnecting from proxy...');
   await client.end();
   console.log('Disconnected from proxy');
+
+  const migrationStatements = await fetchMigrationInfo(args);
 
   return {
     migrationVersion,

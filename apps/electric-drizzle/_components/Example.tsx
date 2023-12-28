@@ -26,7 +26,7 @@ export const Example = () => {
         url: 'ws://localhost:5133',
       };
 
-      const scopedDbName = `basic-v6.db`;
+      const scopedDbName = `basic-v-10.db`;
 
       const conn = await ElectricDatabase.init(scopedDbName, '');
       const electric = await electrify(conn, schema, config);
@@ -73,7 +73,7 @@ const ExampleComponent = () => {
   useEffect(() => {
     const syncItems = async () => {
       // Resolves when the shape subscription has been established.
-      const shape = await db.comments.sync();
+      const shape = await db.comments.sync({});
 
       // Resolves when the data has been synced into the local database.
       await shape.synced;

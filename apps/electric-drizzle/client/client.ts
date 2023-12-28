@@ -60,6 +60,7 @@ function buildTableSchemas() {
           take: z.number().optional(),
           skip: z.number().optional(),
           distinct: z.union([z.any(), z.any().array()]).optional(),
+          include: z.any().optional(),
         })
         .strict(),
       upsertSchema: z.any(),

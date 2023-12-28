@@ -17,7 +17,9 @@
     "electric-sql": "^0.7.0",
     "wa-sqlite": "rhashimoto/wa-sqlite#semver:^0.9.8",
     "yargs": "^17.2.1",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "decompress": "^4.2.1",
+    "protobufjs": "7.2.5"
   },
   "devDependencies": {
     "drizzle-kit": "0.19.13",
@@ -38,6 +40,7 @@
     "@types/react-dom": "18.2.14",
     "@types/yargs": "^17.0.32",
     "@types/pg": "^8.10.9",
+    "@types/decompress": "latest",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "^6.9.1",
     "babel-jest": "^29.4.1",

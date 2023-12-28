@@ -1,8 +1,8 @@
 {
+  "id": "b6659763-7646-49ba-a476-701f0f4f3382",
+  "prevId": "003ea6d5-f780-47a2-b679-ca5ade7748d2",
   "version": "5",
   "dialect": "pg",
-  "id": "003ea6d5-f780-47a2-b679-ca5ade7748d2",
-  "prevId": "f0613ac8-b528-49ee-acfe-ee3a7677821b",
   "tables": {
     "images": {
       "name": "images",
@@ -54,15 +54,15 @@
         "comments_image_id_images_id_fk": {
           "name": "comments_image_id_images_id_fk",
           "tableFrom": "comments",
-          "tableTo": "images",
           "columnsFrom": [
             "image_id"
           ],
+          "tableTo": "images",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -96,15 +96,15 @@
         "reactions_comment_id_comments_id_fk": {
           "name": "reactions_comment_id_comments_id_fk",
           "tableFrom": "reactions",
-          "tableTo": "comments",
           "columnsFrom": [
             "comment_id"
           ],
+          "tableTo": "comments",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -114,8 +114,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }
