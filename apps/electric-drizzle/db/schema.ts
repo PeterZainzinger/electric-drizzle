@@ -6,6 +6,9 @@ export const tableComments = pgTable('comments', {
   image_id: uuid('image_id').references(() => images.id, {
     onDelete: 'cascade',
   }),
+  image_id_alt: uuid('image_id_alt').references(() => images.id, {
+    onDelete: 'cascade',
+  }),
 });
 
 export const tableReactions = pgTable('reactions', {
