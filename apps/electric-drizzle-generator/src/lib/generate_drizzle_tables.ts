@@ -108,15 +108,36 @@ function buildRelationMap(infos: TableInfo[]) {
       const relationName = relationNameBuilder(key.name);
 
       const fieldName = fieldBuilder(key.fkCols[0]);
-      const relationForward = [
+
+      addRelation(targetTable, [
         fieldName,
         key.fkCols[0],
         key.pkCols[0],
         sourceTable,
         relationName,
         'one',
-      ] satisfies Relation;
-      addRelation(targetTable, relationForward);
+      ]);
+
+      const isUnique =
+        foreignKeys.filter((e) => e.pkTable.name === sourceTable).length <= 1;
+      const reverseRelationName = isUnique
+        ? targetTable
+        : `${targetTable}${key.fkCols
+            .flatMap((e) =>
+              e
+                .split('_')
+                .filter((e) => e !== 'id')
+                .map(capitalizeFirstLetter)
+            )
+            .join('')}`;
+      addRelation(sourceTable, [
+        reverseRelationName,
+        '',
+        '',
+        targetTable,
+        relationName,
+        'many',
+      ]);
     }
   }
 

@@ -133,6 +133,7 @@ const ExampleComponent = () => {
         include: {
           image: true,
           imageAlt: true,
+          reactions: true,
         },
       });
 

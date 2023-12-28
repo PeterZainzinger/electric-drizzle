@@ -55,6 +55,14 @@ export const schema = new DbSchema(
           'CommentsImageAlt',
           'one'
         ),
+        new Relation(
+          'reactions',
+          '',
+          '',
+          'reactions',
+          'ReactionsCommentCommentsFk',
+          'many'
+        ),
       ],
     },
 
@@ -83,7 +91,24 @@ export const schema = new DbSchema(
         ['url', 'VARCHAR' as any],
       ]),
       ...buildValidationSchemaForTable(tableImages),
-      relations: [],
+      relations: [
+        new Relation(
+          'commentsImage',
+          '',
+          '',
+          'comments',
+          'CommentsImage',
+          'many'
+        ),
+        new Relation(
+          'commentsImageAlt',
+          '',
+          '',
+          'comments',
+          'CommentsImageAlt',
+          'many'
+        ),
+      ],
     },
   },
   migrations
