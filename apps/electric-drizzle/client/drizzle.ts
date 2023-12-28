@@ -30,7 +30,9 @@ export const drizzleBuilder = (
   );
 };
 
-function unwrapJsonValue<T extends Row>(row: T): Row {
+export function unwrapJsonValue<T extends Row>(row: T): Row {
+  if (!row) return row;
+
   const newRow: Partial<T> = {};
   for (const [keyInput, value] of Object.entries(row)) {
     const key = keyInput as keyof T;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -7,13 +8,14 @@ import { ElectricDatabase, electrify } from 'electric-sql/wa-sqlite';
 
 import { authToken } from './auth';
 import { Electric } from '../client/client';
-import { drizzleBuilder } from '../client/drizzle';
+import { drizzleBuilder, unwrapJsonValue } from '../client/drizzle';
 import { schema, tableComments, tableReactions } from '../client/tables';
 import { SQLiteSelect } from 'drizzle-orm/sqlite-core';
-import { Row, Statement } from 'electric-sql/dist/util';
+import { Statement } from 'electric-sql/dist/util';
 import { LiveResultContext } from 'electric-sql/dist/client/model/model';
 import { SelectResult } from 'drizzle-orm/query-builders/select.types';
-import { eq, mapRelationalRow, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { SQLiteRelationalQuery } from 'drizzle-orm/sqlite-core/query-builders/query';
 
 const { ElectricProvider, useElectric } = makeElectricContext<Electric>();
 
@@ -61,17 +63,11 @@ export const Example = () => {
   );
 };
 
-type QueryResult<T> = {
-  results: T;
-  sql: string;
-  params: any[];
-};
-
 type RunResult<T extends SQLiteSelect<any, any, any, any, any>> =
   T extends SQLiteSelect<
-    infer TTableName,
-    infer TResultType,
-    infer TRunResult,
+    any,
+    any,
+    any,
     infer TSelection,
     infer TSelectMode,
     infer TNullabilityMap
@@ -94,9 +90,32 @@ function useDrizzleLive<
       args: selectQuery.params as any,
     })
   );
-  //const res = mapRelationalRow()
-
   return results as any;
+}
+
+type RunLiveResult<T extends SQLiteRelationalQuery<any, any>> =
+  T extends SQLiteRelationalQuery<any, infer R> ? R : never;
+
+function useDrizzleRelationalLive<
+  const T extends SQLiteRelationalQuery<any, any>
+>(
+  db: {
+    liveRaw(sql: Statement): LiveResultContext<any>;
+  },
+  rawQuery: T
+): RunLiveResult<T> | undefined {
+  const selectQuery = useMemo(() => rawQuery.toSQL(), [rawQuery]);
+  const { results } = useLiveQuery(
+    db.liveRaw({
+      sql: selectQuery.sql,
+      args: selectQuery.params as any,
+    })
+  );
+
+  const unwrapped = Array.isArray(results)
+    ? results.map(unwrapJsonValue)
+    : results;
+  return unwrapped as any;
 }
 
 const ExampleComponent = () => {
@@ -124,11 +143,11 @@ const ExampleComponent = () => {
       })
       .from(tableComments)
       .leftJoin(countReactions, eq(countReactions.commentId, tableComments.id));
-  }, [db]);
-  const results = useDrizzleLive(db, rawQuery);
-  useEffect(() => {
-    async function fetch() {
-      const queryRaw = drizzleDb.query.tableComments.findMany({
+  }, [drizzleDb]);
+
+  const queryRelational = useMemo(
+    () =>
+      drizzleDb.query.tableComments.findMany({
         with: {
           reactions: {
             columns: {
@@ -136,14 +155,14 @@ const ExampleComponent = () => {
             },
           },
         },
-      });
-      console.log(queryRaw);
-      const relationFetchResult = await queryRaw;
-      console.log(relationFetchResult);
-    }
+      }),
+    [drizzleDb]
+  );
 
-    fetch();
-  }, [db]);
+  const results = useDrizzleLive(db, rawQuery);
+
+  const relationalResult = useDrizzleRelationalLive(db, queryRelational);
+  console.log('relationalResult', relationalResult);
 
   useEffect(() => {
     const syncItems = async () => {
@@ -205,6 +224,17 @@ const ExampleComponent = () => {
             Click me
           </button>
         </p>
+      ))}
+      <br />
+      <br />
+      <br />
+      <br />
+      Relational Result
+      {relationalResult?.map((comment) => (
+        <div key={comment.id}>
+          <p>{comment.text}</p>
+          <p>{JSON.stringify(comment.reactions, null, 2)}</p>
+        </div>
       ))}
     </div>
   );
