@@ -143,12 +143,12 @@ export function setupElectricWithDrizzle<
     useDrizzleDB,
     ElectricProvider: ElectricProviderWrapper,
     useDrizzleLiveQuery: (() => {
-      const electric = useElectric();
+      const electric = useElectricWrapped();
       return curryUseDrizzleLive(electric!.db);
-    })(),
+    }),
     useDrizzleRelationalLiveQuery: (() => {
-      const electric = useElectric();
+      const electric = useElectricWrapped();
       return curryUseDrizzleRelationalLive(electric!.db);
-    })(),
+    }),
   };
 }
