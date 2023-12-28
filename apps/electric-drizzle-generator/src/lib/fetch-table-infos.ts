@@ -86,5 +86,17 @@ export type TableInfo = {
       keys: string[];
       name: string;
     };
+    foreign?: {
+      name: string;
+      fkCols: string[];
+      pkCols: string[];
+      pkTable: {
+        name: string;
+        schema: string;
+      };
+      onDelete: string;
+
+    }
+
   }[];
 };

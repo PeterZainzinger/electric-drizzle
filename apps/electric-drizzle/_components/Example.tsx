@@ -6,9 +6,9 @@ import { genUUID } from 'electric-sql/util';
 import { ElectricDatabase, electrify } from 'electric-sql/wa-sqlite';
 
 import { authToken } from './auth';
-import { Electric, schema } from '../client/client';
+import { Electric } from '../client/client';
 import { drizzleBuilder } from '../client/drizzle';
-import { tableComments } from '../client/tables';
+import { schema, tableComments } from '../client/tables';
 
 const { ElectricProvider, useElectric } = makeElectricContext<Electric>();
 
@@ -74,7 +74,10 @@ const ExampleComponent = () => {
     const syncItems = async () => {
       // Resolves when the shape subscription has been established.
       const shape = await db.comments.sync({
-        include: {},
+        include: {
+          image: true,
+          imageAlt: true,
+        },
       });
 
       // Resolves when the data has been synced into the local database.

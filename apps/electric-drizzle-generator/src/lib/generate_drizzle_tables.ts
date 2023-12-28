@@ -9,21 +9,16 @@ export function generateDrizzleTables(info: AllTableInfos) {
 import { sqliteTable, ${typesJoined} } from 'drizzle-orm/sqlite-core';
 import migrations from './migrations';
 import { buildValidationSchemaForTable } from './utils';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
 import {
   DbSchema,
   ElectricClient,
   Relation,
   type TableSchema,
 } from 'electric-sql/client/model';
-import {
-  PgBasicType,
-  PgDateType,
-} from 'electric-sql/dist/client/conversions/types';
 
   `;
   };
+  const relationMap = buildRelationMap(info.table);
   const infos = info.table.map(generateTable);
   return `
   ${imports(infos.flatMap((e) => e.types))}
@@ -33,13 +28,13 @@ import {
   export const allTables = {${info.table.map((e) => tableName(e)).join(', ')}};
 
   export const schema = new DbSchema({
-   ${info.table.map(buildSchemaForTable).join('\n')}
+   ${info.table.map((e) => buildSchemaForTable(e, relationMap)).join('\n')}
   }, migrations);
 
   `;
 }
 
-function buildSchemaForTable(table: TableInfo) {
+function buildSchemaForTable(table: TableInfo, relationMap: RelationMap) {
   return `
    ${table.name.name}: {
     fields: new Map([
@@ -48,7 +43,13 @@ function buildSchemaForTable(table: TableInfo) {
   })}
     ]),
     ...buildValidationSchemaForTable(${tableName(table)}),
-    relations: []
+    relations: [
+    ${
+      relationMap[table.name.name]
+        ?.map((e) => `new Relation(${e.map((e) => `"${e}"`).join(',')})`)
+        .join(',\n') || ''
+    }
+    ]
    },
   `;
 }
@@ -77,6 +78,70 @@ function generateColumn(col: ColumnType) {
   };
 }
 
+function mapDataType(type: string) {
+  return `"${type.toUpperCase()}" as any`;
+}
+
+type Relation = [string, string, string, string, string, 'one' | 'many'];
+
+type RelationMap = Record<string, Relation[]>;
+
+function buildRelationMap(infos: TableInfo[]) {
+  const table2Relations: RelationMap = {};
+
+  function addRelation(table: string, relation: Relation) {
+    if (!table2Relations[table]) {
+      table2Relations[table] = [];
+    }
+    table2Relations[table].push(relation);
+  }
+
+  for (const tableInfo of infos) {
+    const targetTable = tableInfo.name.name;
+    const foreignKeys = tableInfo.constraints
+      .map((e) => e.foreign)
+      .filter((e) => e)
+      .map((e) => e!);
+    for (const key of foreignKeys) {
+      const sourceTable = key.pkTable.name;
+
+      const relationName = relationNameBuilder(key.name);
+
+      const fieldName = fieldBuilder(key.fkCols[0]);
+      const relationForward = [
+        fieldName,
+        key.fkCols[0],
+        key.pkCols[0],
+        sourceTable,
+        relationName,
+        'one',
+      ] satisfies Relation;
+      addRelation(targetTable, relationForward);
+    }
+  }
+
+  return table2Relations;
+}
+
+function relationNameBuilder(constraintName: string) {
+  return constraintName
+    .split('_')
+    .filter((p) => p !== 'fkey')
+    .filter((p) => p !== 'id')
+    .map((p) => capitalizeFirstLetter(p))
+    .join('');
+}
+
+function fieldBuilder(name: string) {
+  return unCapitalizeFirstLetter(
+    name
+      .split('_')
+      .filter((p) => p !== 'id')
+      .map((p) => capitalizeFirstLetter(p))
+      .join('')
+  );
+}
+
 const prefix = 'table';
 
 function tableName(table: TableInfo) {
@@ -87,14 +152,6 @@ function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function mapDataType(type: string) {
-  function isDateDataType(type: string) {
-    const keys = ['TIMESTAMP', 'TIMESTAMPTZ', 'DATE', 'TIME', 'TIMETZ'];
-    return keys.includes(type);
-  }
-
-  const dateType = isDateDataType(type.toUpperCase());
-
-  const prefix = dateType ? 'PgDateType' : 'PgBasicType';
-  return `${prefix}.PG_${type.toUpperCase()}`;
+function unCapitalizeFirstLetter(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
 }

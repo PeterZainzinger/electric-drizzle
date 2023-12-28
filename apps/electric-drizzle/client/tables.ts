@@ -1,18 +1,12 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import migrations from './migrations';
 import { buildValidationSchemaForTable } from './utils';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
 import {
   DbSchema,
   ElectricClient,
   Relation,
   type TableSchema,
 } from 'electric-sql/client/model';
-import {
-  PgBasicType,
-  PgDateType,
-} from 'electric-sql/dist/client/conversions/types';
 
 export const tableComments = sqliteTable('comments', {
   id: text('id'),
@@ -38,29 +32,55 @@ export const schema = new DbSchema(
   {
     comments: {
       fields: new Map([
-        ['id', PgBasicType.PG_UUID],
-        ['text', PgBasicType.PG_VARCHAR],
-        ['image_id', PgBasicType.PG_UUID],
-        ['image_id_alt', PgBasicType.PG_UUID],
+        ['id', 'UUID' as any],
+        ['text', 'VARCHAR' as any],
+        ['image_id', 'UUID' as any],
+        ['image_id_alt', 'UUID' as any],
       ]),
       ...buildValidationSchemaForTable(tableComments),
-      relations: [],
+      relations: [
+        new Relation(
+          'image',
+          'image_id',
+          'id',
+          'images',
+          'CommentsImage',
+          'one'
+        ),
+        new Relation(
+          'imageAlt',
+          'image_id_alt',
+          'id',
+          'images',
+          'CommentsImageAlt',
+          'one'
+        ),
+      ],
     },
 
     reactions: {
       fields: new Map([
-        ['id', PgBasicType.PG_UUID],
-        ['comment_id', PgBasicType.PG_UUID],
-        ['text', PgBasicType.PG_VARCHAR],
+        ['id', 'UUID' as any],
+        ['comment_id', 'UUID' as any],
+        ['text', 'VARCHAR' as any],
       ]),
       ...buildValidationSchemaForTable(tableReactions),
-      relations: [],
+      relations: [
+        new Relation(
+          'comment',
+          'comment_id',
+          'id',
+          'comments',
+          'ReactionsCommentCommentsFk',
+          'one'
+        ),
+      ],
     },
 
     images: {
       fields: new Map([
-        ['id', PgBasicType.PG_UUID],
-        ['url', PgBasicType.PG_VARCHAR],
+        ['id', 'UUID' as any],
+        ['url', 'VARCHAR' as any],
       ]),
       ...buildValidationSchemaForTable(tableImages),
       relations: [],
