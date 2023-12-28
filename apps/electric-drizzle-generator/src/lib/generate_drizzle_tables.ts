@@ -71,9 +71,19 @@ function generateColumn(col: ColumnType) {
   if (!mappedType) {
     throw new Error(`Unknown type ${col.type.name} `);
   }
+  const notNullConstraints =
+    col.constraints
+      ?.map((e) => e.notNull)
+      ?.filter((e) => e)
+      ?.map((e) => e!) || [];
+
+  const modifiers = [];
+  if (notNullConstraints.length > 0) {
+    modifiers.push('.notNull()');
+  }
 
   return {
-    text: `${col.name}: ${mappedType}('${col.name}')`,
+    text: `${col.name}: ${mappedType}('${col.name}')${modifiers.join()}`,
     type: mappedType,
   };
 }

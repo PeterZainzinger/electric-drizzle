@@ -70,9 +70,9 @@ export type ColumnType = {
   type: {
     name: string;
   };
-  constraints: {
+  constraints?: {
     notNull?: {};
-  };
+  }[];
 };
 
 export type TableInfo = {

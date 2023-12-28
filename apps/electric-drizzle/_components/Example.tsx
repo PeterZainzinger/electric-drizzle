@@ -13,7 +13,7 @@ import { SQLiteSelect } from 'drizzle-orm/sqlite-core';
 import { Row, Statement } from 'electric-sql/dist/util';
 import { LiveResultContext } from 'electric-sql/dist/client/model/model';
 import { SelectResult } from 'drizzle-orm/query-builders/select.types';
-import { eq, sql } from 'drizzle-orm';
+import {eq, mapRelationalRow, sql} from 'drizzle-orm';
 
 const { ElectricProvider, useElectric } = makeElectricContext<Electric>();
 
@@ -94,6 +94,7 @@ function useDrizzleLive<
       args: selectQuery.params as any,
     })
   );
+  //const res = mapRelationalRow()
 
   return results as any;
 }

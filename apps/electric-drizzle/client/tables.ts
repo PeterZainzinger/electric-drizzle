@@ -9,21 +9,21 @@ import {
 } from 'electric-sql/client/model';
 
 export const tableComments = sqliteTable('comments', {
-  id: text('id'),
-  text: text('text'),
+  id: text('id').notNull(),
+  text: text('text').notNull(),
   image_id: text('image_id'),
   image_id_alt: text('image_id_alt'),
 });
 
 export const tableReactions = sqliteTable('reactions', {
-  id: text('id'),
-  comment_id: text('comment_id'),
-  text: text('text'),
+  id: text('id').notNull(),
+  comment_id: text('comment_id').notNull(),
+  text: text('text').notNull(),
 });
 
 export const tableImages = sqliteTable('images', {
-  id: text('id'),
-  url: text('url'),
+  id: text('id').notNull(),
+  url: text('url').notNull(),
 });
 
 export const allTables = { tableComments, tableReactions, tableImages };
