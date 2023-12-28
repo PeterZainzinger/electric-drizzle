@@ -13,7 +13,7 @@ import { SQLiteSelect } from 'drizzle-orm/sqlite-core';
 import { Row, Statement } from 'electric-sql/dist/util';
 import { LiveResultContext } from 'electric-sql/dist/client/model/model';
 import { SelectResult } from 'drizzle-orm/query-builders/select.types';
-import {eq, mapRelationalRow, sql} from 'drizzle-orm';
+import { eq, mapRelationalRow, sql } from 'drizzle-orm';
 
 const { ElectricProvider, useElectric } = makeElectricContext<Electric>();
 
@@ -126,6 +126,24 @@ const ExampleComponent = () => {
       .leftJoin(countReactions, eq(countReactions.commentId, tableComments.id));
   }, [db]);
   const results = useDrizzleLive(db, rawQuery);
+  useEffect(() => {
+    async function fetch() {
+      const queryRaw = drizzleDb.query.tableComments.findMany({
+        with: {
+          reactions: {
+            columns: {
+              text: true,
+            },
+          },
+        },
+      });
+      console.log(queryRaw);
+      const relationFetchResult = await queryRaw;
+      console.log(relationFetchResult);
+    }
+
+    fetch();
+  }, [db]);
 
   useEffect(() => {
     const syncItems = async () => {

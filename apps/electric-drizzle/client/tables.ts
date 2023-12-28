@@ -7,6 +7,7 @@ import {
   Relation,
   type TableSchema,
 } from 'electric-sql/client/model';
+import { relations } from 'drizzle-orm';
 
 export const tableComments = sqliteTable('comments', {
   id: text('id').notNull(),
@@ -15,18 +16,47 @@ export const tableComments = sqliteTable('comments', {
   image_id_alt: text('image_id_alt'),
 });
 
+export const relationsComments = relations(tableComments, ({ one, many }) => ({
+  image: one(tableImages, {
+    fields: [tableComments.image_id],
+    references: [tableImages.id],
+  }),
+  imageAlt: one(tableImages, {
+    fields: [tableComments.image_id_alt],
+    references: [tableImages.id],
+  }),
+  reactions: many(tableReactions, { relationName: 'ParentReactionComment' }),
+}));
+
 export const tableReactions = sqliteTable('reactions', {
   id: text('id').notNull(),
   comment_id: text('comment_id').notNull(),
   text: text('text').notNull(),
 });
 
+export const relationsReactions = relations(
+  tableReactions,
+  ({ one, many }) => ({
+    comment: one(tableComments, {
+      fields: [tableReactions.comment_id],
+      references: [tableComments.id],
+      relationName: 'ParentReactionComment',
+    }),
+  })
+);
+
 export const tableImages = sqliteTable('images', {
   id: text('id').notNull(),
   url: text('url').notNull(),
 });
 
-export const allTables = { tableComments, tableReactions, tableImages };
+export const allTables = {
+  tableComments,
+  relationsComments,
+  tableReactions,
+  relationsReactions,
+  tableImages,
+};
 
 export const schema = new DbSchema(
   {
