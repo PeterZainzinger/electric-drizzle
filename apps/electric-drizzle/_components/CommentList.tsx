@@ -107,12 +107,22 @@ export const CommentsList: FC = () => {
             onClick={async () => {
               await drizzleDb.insert(tableReactions).values({
                 id: genUUID(),
-                comment_id: item.id!,
+                comment_id: item.id,
                 text: 'like',
               });
             }}
           >
-            Click me
+            Add Like
+          </button>
+
+          <button
+            onClick={async () => {
+              await drizzleDb
+                .delete(tableComments)
+                .where(eq(tableComments.id, item.id));
+            }}
+          >
+            Remove
           </button>
         </p>
       ))}
