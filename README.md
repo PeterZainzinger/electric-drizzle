@@ -24,6 +24,7 @@ The structure of the project is as follows:
 * code in a rough state, just a proof of concept
 * relation are all interpreted as one to many
 * "UI" really basic
+* relational query not updating, seems like an electric bug not working with sub queries
 
 ## Setup
 
