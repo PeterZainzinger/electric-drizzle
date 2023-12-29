@@ -1,5 +1,5 @@
+/* eslint-disable */
 import { Client } from 'pg';
-import * as http from 'http';
 import { GenerateSchemaArgs } from './generator_args';
 import { fetchMigrationInfo } from './fetch-migration-infos';
 
@@ -95,8 +95,6 @@ export type TableInfo = {
         schema: string;
       };
       onDelete: string;
-
-    }
-
+    };
   }[];
 };

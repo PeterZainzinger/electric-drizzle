@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const postgres2sqlite = {
   varchar: 'text',
   uuid: 'text',
