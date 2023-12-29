@@ -2,20 +2,20 @@
 'use client';
 import React, { FC, useEffect, useMemo } from 'react';
 import { genUUID } from 'electric-sql/util';
+
+import { tableComments, tableReactions } from '../client/tables';
+import { eq, sql } from 'drizzle-orm';
 import {
   useDrizzleDB,
   useDrizzleLiveQuery,
   useDrizzleRelationalLiveQuery,
   useElectric,
-} from '../client/electric-client';
-import { tableComments, tableReactions } from '../client/tables';
-import { eq, sql } from 'drizzle-orm';
+} from './DbWrapper';
 
 export const CommentsList: FC = () => {
-  const { db, satellite } = useElectric()!;
+  const { db } = useElectric()!;
   useEffect(() => {
     const syncItems = async () => {
-      // Resolves when the shape subscription has been established.
       const shape = await db.comments.sync({
         include: {
           image: true,
@@ -23,19 +23,11 @@ export const CommentsList: FC = () => {
           reactions: true,
         },
       });
-
-      // Resolves when the data has been synced into the local database.
       await shape.synced;
     };
 
     syncItems();
   }, []);
-
-  useEffect(() => {
-    satellite.notifier.subscribeToDataChanges((data) => {
-      console.log('data', data);
-    });
-  }, [satellite]);
 
   const drizzleDb = useDrizzleDB();
   const rawQuery = useMemo(() => {

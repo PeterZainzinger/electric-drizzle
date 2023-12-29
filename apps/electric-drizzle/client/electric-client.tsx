@@ -6,21 +6,28 @@ import { authToken } from './auth';
 
 export type Electric = ElectricClient<typeof schema>;
 
-const setup = setupElectricWithDrizzle({
-  schema,
-  dbName: `basic-v-10.db`,
-  config: {
-    auth: {
-      token: authToken(),
+export async function setupDB(args: {
+  token: string;
+}){
+  return setupElectricWithDrizzle({
+    schema,
+    dbName: `basic-v-10.db`,
+    config: {
+      auth: {
+        token: args.token,
+      },
+      url: 'ws://localhost:5133',
     },
-    url: 'ws://localhost:5133',
-  },
-  loadingComponent: <InitElectric />,
-  schemaTypes: allTables,
-});
+    loadingComponent: <InitElectric />,
+    schemaTypes: allTables,
+  });
 
-export const ElectricProvider = setup.ElectricProvider;
+}
+
+/*
 export const useElectric = setup.useElectric;
 export const useDrizzleDB = setup.useDrizzleDB;
 export const useDrizzleLiveQuery = setup.useDrizzleLiveQuery;
 export const useDrizzleRelationalLiveQuery = setup.useDrizzleRelationalLiveQuery;
+
+ */

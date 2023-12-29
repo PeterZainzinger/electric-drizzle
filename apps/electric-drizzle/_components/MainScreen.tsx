@@ -1,11 +1,12 @@
 'use client';
-import { ElectricProvider } from '../client/electric-client';
 import { CommentsList } from './CommentList';
+import React from 'react';
+import DbWrapper from './DbWrapper';
 
 export default function MainScreen() {
   return (
-    <ElectricProvider>
+    <DbWrapper>
       <CommentsList />
-    </ElectricProvider>
+    </DbWrapper>
   );
 }

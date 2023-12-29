@@ -155,7 +155,7 @@ export function setupElectricWithDrizzle<
 
 type CurriedFunctionNoArg<B, R> = () => (b: B) => R;
 
-function uncurry2NoArg<B, R>(f: CurriedFunctionNoArg<B, R>): (b: B) => R {
+export function uncurry2NoArg<B, R>(f: CurriedFunctionNoArg<B, R>): (b: B) => R {
   return (b: B) => f()(b);
 }
 
