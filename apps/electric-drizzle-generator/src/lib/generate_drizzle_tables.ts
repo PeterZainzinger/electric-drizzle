@@ -6,26 +6,34 @@ export function generateDrizzleTables(info: AllTableInfos) {
     const uniqueTypes = [...new Set(types)];
     const typesJoined = uniqueTypes.join(', ');
     return `
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { sqliteTable, ${typesJoined} } from 'drizzle-orm/sqlite-core';
 import migrations from './migrations';
 import { buildValidationSchemaForTable } from './utils';
 import {
   DbSchema,
-  ElectricClient,
   Relation,
-  type TableSchema,
 } from 'electric-sql/client/model';
+import { relations } from 'drizzle-orm';
 
   `;
   };
   const relationMap = buildRelationMap(info.table);
-  const infos = info.table.map(generateTable);
+  const types = info.table.map(generateTable).flatMap((e) => e.types);
   return `
-  ${imports(infos.flatMap((e) => e.types))}
+  ${imports(types)}
 
-  ${infos.map((e) => e.text).join('\n\n')}
+  ${info.table
+    .map((table) => {
+      const { relation } = buildRelations(table, relationMap);
+      const { text } = generateTable(table);
+      return text + '\n' + relation;
+    })
+    .join('\n\n')}
 
-  export const allTables = {${info.table.map((e) => tableName(e)).join(', ')}};
+  export const allTables = {${info.table
+    .flatMap((e) => [tableName(e), relationName(e)])
+    .join(', ')}};
 
   export const schema = new DbSchema({
    ${info.table.map((e) => buildSchemaForTable(e, relationMap)).join('\n')}
@@ -154,6 +162,38 @@ function buildRelationMap(infos: TableInfo[]) {
   return table2Relations;
 }
 
+function buildRelations(tableInfo: TableInfo, relationMap: RelationMap) {
+  const relationSqliteName = relationName(tableInfo);
+  const tableNameSqlite = tableName(tableInfo);
+
+  const relations = relationMap[tableInfo.name.name] || [];
+
+  return {
+    relationsName: relationSqliteName,
+    relation: `
+export const ${relationSqliteName} = relations(${tableNameSqlite},({ one, many }) => ({
+  ${relations
+    .map((e) => {
+      const [fieldName, fkCol, pkCol, targetTable, relationName, type] = e;
+
+      return `${fieldName}: ${type}(${tableName(targetTable)}, {
+      ${
+        type === 'one'
+          ? `
+      fields: [${tableName(tableInfo.name.name)}.${fkCol}],
+      references: [${tableName(targetTable)}.${pkCol}], `
+          : ''
+      }
+        relationName: '${relationName}',
+        })`;
+    })
+    .join(',\n')}
+
+}));
+     `,
+  };
+}
+
 function relationNameBuilder(constraintName: string) {
   return constraintName
     .split('_')
@@ -173,9 +213,16 @@ function fieldBuilder(name: string) {
   );
 }
 
-const prefix = 'table';
+function tableName(table: TableInfo | string) {
+  const prefix = 'table';
+  return (
+    prefix +
+    capitalizeFirstLetter(typeof table === 'string' ? table : table.name.name)
+  );
+}
 
-function tableName(table: TableInfo) {
+function relationName(table: TableInfo) {
+  const prefix = 'relations';
   return prefix + capitalizeFirstLetter(table.name.name);
 }
 

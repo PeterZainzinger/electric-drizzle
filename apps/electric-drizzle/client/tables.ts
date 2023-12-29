@@ -1,12 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import migrations from './migrations';
 import { buildValidationSchemaForTable } from './utils';
-import {
-  DbSchema,
-  ElectricClient,
-  Relation,
-  type TableSchema,
-} from 'electric-sql/client/model';
+import { DbSchema, Relation } from 'electric-sql/client/model';
 import { relations } from 'drizzle-orm';
 
 export const tableComments = sqliteTable('comments', {
@@ -20,12 +16,16 @@ export const relationsComments = relations(tableComments, ({ one, many }) => ({
   image: one(tableImages, {
     fields: [tableComments.image_id],
     references: [tableImages.id],
+    relationName: 'CommentsImage',
   }),
   imageAlt: one(tableImages, {
     fields: [tableComments.image_id_alt],
     references: [tableImages.id],
+    relationName: 'CommentsImageAlt',
   }),
-  reactions: many(tableReactions, { relationName: 'ParentReactionComment' }),
+  reactions: many(tableReactions, {
+    relationName: 'ReactionsCommentCommentsFk',
+  }),
 }));
 
 export const tableReactions = sqliteTable('reactions', {
@@ -40,7 +40,7 @@ export const relationsReactions = relations(
     comment: one(tableComments, {
       fields: [tableReactions.comment_id],
       references: [tableComments.id],
-      relationName: 'ParentReactionComment',
+      relationName: 'ReactionsCommentCommentsFk',
     }),
   })
 );
@@ -50,12 +50,22 @@ export const tableImages = sqliteTable('images', {
   url: text('url').notNull(),
 });
 
+export const relationsImages = relations(tableImages, ({ one, many }) => ({
+  commentsImage: many(tableComments, {
+    relationName: 'CommentsImage',
+  }),
+  commentsImageAlt: many(tableComments, {
+    relationName: 'CommentsImageAlt',
+  }),
+}));
+
 export const allTables = {
   tableComments,
   relationsComments,
   tableReactions,
   relationsReactions,
   tableImages,
+  relationsImages,
 };
 
 export const schema = new DbSchema(
