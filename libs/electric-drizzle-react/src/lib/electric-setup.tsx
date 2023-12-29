@@ -142,13 +142,21 @@ export function setupElectricWithDrizzle<
     useElectric: useElectricWrapped,
     useDrizzleDB,
     ElectricProvider: ElectricProviderWrapper,
-    useDrizzleLiveQuery: () => {
+    useDrizzleLiveQuery: uncurry2NoArg(() => {
       const electric = useElectricWrapped();
       return curryUseDrizzleLive(electric!.db);
-    },
-    useDrizzleRelationalLiveQuery: () => {
+    }),
+    useDrizzleRelationalLiveQuery: uncurry2NoArg(() => {
       const electric = useElectricWrapped();
       return curryUseDrizzleRelationalLive(electric!.db);
-    },
+    }),
   };
 }
+
+type CurriedFunctionNoArg<B, R> = () => (b: B) => R;
+
+function uncurry2NoArg<B, R>(f: CurriedFunctionNoArg<B, R>): (b: B) => R {
+  return (b: B) => f()(b);
+}
+
+

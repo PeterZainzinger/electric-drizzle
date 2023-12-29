@@ -12,7 +12,7 @@ import { tableComments, tableReactions } from '../client/tables';
 import { eq, sql } from 'drizzle-orm';
 
 export const CommentsList: FC = () => {
-  const { db } = useElectric()!;
+  const { db, satellite } = useElectric()!;
   useEffect(() => {
     const syncItems = async () => {
       // Resolves when the shape subscription has been established.
@@ -30,6 +30,12 @@ export const CommentsList: FC = () => {
 
     syncItems();
   }, []);
+
+  useEffect(() => {
+    satellite.notifier.subscribeToDataChanges((data) => {
+      console.log('data', data);
+    });
+  }, [satellite]);
 
   const drizzleDb = useDrizzleDB();
   const rawQuery = useMemo(() => {
@@ -70,9 +76,9 @@ export const CommentsList: FC = () => {
     [drizzleDb]
   );
 
-  const results = useDrizzleLiveQuery()(rawQuery);
+  const results = useDrizzleLiveQuery(rawQuery);
 
-  const relationalResult = useDrizzleRelationalLiveQuery()(queryRelational);
+  const relationalResult = useDrizzleRelationalLiveQuery(queryRelational);
 
   const addItem = async () => {
     await drizzleDb.insert(tableComments).values({

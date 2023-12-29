@@ -8,6 +8,7 @@ import { useLiveQuery } from 'electric-sql/react';
 
 import { SQLiteRelationalQuery } from 'drizzle-orm/sqlite-core/query-builders/query';
 import { unwrapJsonValue } from './utils';
+import { mapRelationalRow } from 'drizzle-orm';
 
 type RunResult<T extends SQLiteSelect<any, any, any, any, any>> =
   T extends SQLiteSelect<
@@ -54,10 +55,27 @@ export function curryUseDrizzleRelationalLive(db: {
         args: selectQuery.params as any,
       })
     );
+    const resultsSafe = results || [];
+    const unwrapped = Array.isArray(resultsSafe)
+      ? resultsSafe.map(unwrapJsonValue)
+      : resultsSafe;
 
-    const unwrapped = Array.isArray(results)
-      ? results.map(unwrapJsonValue)
-      : results;
-    return unwrapped as any;
+    const queryAny = rawQuery as any;
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const rawQueryUnsafe = rawQuery._toSQL();
+
+    return unwrapped.map((row: any) => {
+      const keys = Object.keys(row);
+      const rowRaw = keys.map((key) => row[key]);
+      return mapRelationalRow(
+        queryAny.schema,
+        queryAny.tableConfig,
+        rowRaw,
+        rawQueryUnsafe.query.selection,
+        (e) => e
+      );
+    });
   };
 }
