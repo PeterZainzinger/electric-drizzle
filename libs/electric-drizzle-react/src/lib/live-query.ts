@@ -48,7 +48,13 @@ export function curryUseDrizzleRelationalLive(db: {
   return function <T extends SQLiteRelationalQuery<any, any>>(
     rawQuery: T
   ): RunLiveResult<T> | undefined {
-    const selectQuery = useMemo(() => rawQuery.toSQL(), [rawQuery]);
+    const [selectQuery, rawQueryUnsafe] = useMemo(() => {
+      return [
+        rawQuery.toSQL(),
+        // @ts-expect-error(accessing private property)
+        rawQuery._toSQL(),
+      ];
+    }, [rawQuery]);
     const { results } = useLiveQuery(
       db.liveRaw({
         sql: selectQuery.sql,
@@ -59,13 +65,7 @@ export function curryUseDrizzleRelationalLive(db: {
     const unwrapped = Array.isArray(resultsSafe)
       ? resultsSafe.map(unwrapJsonValue)
       : resultsSafe;
-
     const queryAny = rawQuery as any;
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const rawQueryUnsafe = rawQuery._toSQL();
-
     return unwrapped.map((row: any) => {
       const keys = Object.keys(row);
       const rowRaw = keys.map((key) => row[key]);
