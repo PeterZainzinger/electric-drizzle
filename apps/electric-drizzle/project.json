@@ -4,6 +4,12 @@
   "sourceRoot": "apps/electric-drizzle",
   "projectType": "application",
   "targets": {
+    "migration": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "migrate"
+      }
+    },
     "build": {
       "executor": "@nx/next:build",
       "outputs": ["{options.outputPath}"],

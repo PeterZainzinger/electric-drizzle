@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "generate": "../../node_modules/.bin/ts-node --project ./tsconfig.app.json ./src/electric-drizzle-generator.ts"
+    "generate": "../../node_modules/.bin/ts-node --project ./tsconfig.app.json ./src/electric-drizzle-generator.ts generate -- --service http://localhost:5133 --output ../electric-drizzle/client  --proxy_url postgresql://electric:proxy_password@127.0.0.1:65432/electric"
   }
 }

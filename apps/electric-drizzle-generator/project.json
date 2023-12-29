@@ -4,6 +4,12 @@
   "sourceRoot": "apps/electric-drizzle-generator/src",
   "projectType": "application",
   "targets": {
+    "run": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "generate"
+      }
+    },
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": [
